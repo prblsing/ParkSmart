@@ -55,8 +55,8 @@ parking_violation_detection/
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/your-username/parking_violation_detection.git
-   cd parking_violation_detection
+   git clone https://github.com/prblsing/ParkSmart.git
+   cd ParkSmart
    ```
 
 2. **Install Dependencies**
