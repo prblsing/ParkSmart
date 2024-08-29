@@ -27,7 +27,7 @@ If you want to contribute code, follow these steps:
 2. **Clone Your Fork**: Clone your forked repository to your local machine:
 
    ```bash
-   git clone https://github.com/prblsing/parking_violation_detection.git
+   git clone https://github.com/prblsing/ParkSmart.git
    cd parking_violation_detection
    ```
 
