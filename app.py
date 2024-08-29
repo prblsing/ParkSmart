@@ -14,7 +14,7 @@ from park_smart.config.model_config import load_yolo_model
 from park_smart.utils.image_processing import preprocess_image, detect_cars, detect_parking_lines
 from park_smart.utils.number_plate_recognition import identify_car_number
 from park_smart.utils.parking_validations import draw_bounding_boxes, is_car_parked_correctly
-from park_smart.utils.database import initialize_database, insert_parking_record, get_parking_records
+from park_smart.utils.database import initialize_database, insert_record, fetch_records
 
 # Initialize the model
 yolo_model = load_yolo_model()
