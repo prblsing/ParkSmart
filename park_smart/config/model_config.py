@@ -2,6 +2,7 @@
 import os
 import torch
 import gdown
+import streamlit as st
 
 # Define the path for the YOLOv5 model
 MODEL_DIR = 'models'
@@ -9,12 +10,14 @@ MODEL_PATH = os.path.join(MODEL_DIR, 'pretrained_model_state_dict.pt')
 
 def get_drive_url():
     """
-    Fetch the Google Drive URL from environment variables (set through GitHub secrets).
+    Fetch the Google Drive URL from Streamlit secrets.
     """
-    drive_url = os.getenv('DRIVE_URL')
-    if not drive_url:
-        raise ValueError("Google Drive URL not found. Please set the 'DRIVE_URL' environment variable.")
-    return drive_url
+    try:
+        drive_url = st.secrets["DRIVE_URL"]
+        return drive_url
+    except KeyError:
+        st.error("Google Drive URL not found in Streamlit secrets. Please set the 'DRIVE_URL' in your Streamlit secrets.")
+        return None
 
 def download_model():
     """
@@ -26,8 +29,11 @@ def download_model():
 
         # Download the model from Google Drive
         drive_url = get_drive_url()
-        print(f"Downloading YOLOv5 model from {drive_url} to {MODEL_PATH}...")
-        gdown.download(drive_url, MODEL_PATH, quiet=False)
+        if drive_url:
+            print(f"Downloading YOLOv5 model from {drive_url} to {MODEL_PATH}...")
+            gdown.download(drive_url, MODEL_PATH, quiet=False)
+        else:
+            print("Model download URL not provided.")
     else:
         print(f"Model already exists at {MODEL_PATH}.")
 
