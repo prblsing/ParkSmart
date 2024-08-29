@@ -12,14 +12,19 @@ def download_model():
     """
     Downloads the YOLO model from a Google Drive URL if not already present.
     """
-    drive_url = os.getenv('DRIVE_URL')
+    drive_url = st.secrets["DRIVE_URL"]  # Correct usage for Streamlit secrets
     model_path = os.path.join('models', 'pretrained_model_state_dict.pt')
+    
+    if not drive_url:
+        logging.error("DRIVE_URL is not set. Please set it in Streamlit secrets or environment variables.")
+        raise ValueError("DRIVE_URL is not set.")
     
     if not os.path.exists('models'):
         os.makedirs('models')
 
     if not os.path.exists(model_path):
         try:
+            logging.info(f"Attempting to download model from {drive_url}")
             gdown.download(drive_url, model_path, quiet=False)
         except Exception as e:
             logging.error(f"Failed to download the model: {e}")
