@@ -9,3 +9,4 @@ requests~=2.32.3
 torch~=2.4.0
 pytesseract~=0.3.13
 opencv-python-headless
+gdown~=5.2.0
