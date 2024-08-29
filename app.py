@@ -1,13 +1,23 @@
+# import streamlit as st
+# from park_smart.config.logging_config import get_logger
+# from park_smart.config.model_config import load_yolo_model
+# from park_smart.utils.parking_validations import draw_bounding_boxes, is_car_parked_correctly
+# from park_smart.utils.image_processing import preprocess_image, detect_cars, detect_parking_lines
+# from park_smart.utils.database import initialize_database, insert_record, fetch_records
+# from park_smart.utils.number_plate_recognition import identify_car_number
+# from PIL import Image
+# import numpy as np
+# from datetime import datetime
+
 import streamlit as st
-from park_smart.config.logging_config import get_logger
 from park_smart.config.model_config import load_yolo_model
-from park_smart.utils.parking_validations import draw_bounding_boxes, is_car_parked_correctly
 from park_smart.utils.image_processing import preprocess_image, detect_cars, detect_parking_lines
-from park_smart.utils.database import initialize_database, insert_record, fetch_records
 from park_smart.utils.number_plate_recognition import identify_car_number
-from PIL import Image
-import numpy as np
-from datetime import datetime
+from park_smart.utils.parking_validations import draw_bounding_boxes, is_car_parked_correctly
+from park_smart.utils.database import initialize_database, insert_parking_record, get_parking_records
+
+# Initialize the model
+yolo_model = load_yolo_model()
 
 # Initialize logger
 logger = get_logger(__name__, log_level='INFO')
