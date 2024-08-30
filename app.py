@@ -41,24 +41,25 @@ def user_dashboard():
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
+        # Load image
         image = np.array(Image.open(uploaded_file))
-        image_with_lines, parking_spaces = detect_parking_lines(image.copy())
-        car_boxes = detect_cars(image)
-        final_image, analysis = draw_bounding_boxes(image_with_lines, car_boxes, parking_spaces)
-
-        st.image(final_image, caption="Processed Image with Detected Cars", use_column_width=True)
-        st.write(f"Detected {len(car_boxes)} cars in the parking lot.")
-
-        conn = initialize_db()  # Use cached database connection
-
-        for item in analysis:
-            if "Incorrectly" in item:
-                car_number = identify_car_number(final_image, car_boxes[analysis.index(item)])
-                report_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                insert_record(conn, uploaded_file.name, car_number, report_date, "Pending")
-                st.error(item)
-            else:
-                st.success(item)
+    
+        # Detect parking lines
+        parking_lines_img = detect_parking_lines(image.copy())
+    
+        # Detect cars
+        car_boxes = detect_cars(image.copy())
+    
+        # Draw bounding boxes
+        image_with_boxes = draw_bounding_boxes(parking_lines_img.copy(), car_boxes)
+    
+        # Display results
+        st.image(image_with_boxes, caption="Processed Image with Detected Cars", use_column_width=True)
+    
+        if car_boxes:
+            st.warning(f"Detected {len(car_boxes)} cars in the parking lot.")
+        else:
+            st.success("No cars detected in the parking lot.")
 
 def admin_dashboard():
     st.header("Admin Dashboard")
@@ -68,18 +69,18 @@ def admin_dashboard():
     if st.button("Login"):
         if username == "admin" and password == "admin":
             st.success("Logged in successfully!")
-            conn = initialize_db()  # Use cached database connection
-            records = fetch_records(conn)
-            for record in records:
-                st.write(f"Record ID: {record[0]}, Car Number: {record[2]}, Status: {record[4]}")
-                action = st.selectbox("Action", ["Issue First Warning", "Issue Second Warning", "Issue Third Warning",
-                                                 "Revoke Parking Sticker"], key=record[0])
-                if st.button("Apply", key=f"apply_{record[0]}"):
-                    new_status = action
-                    cursor = conn.cursor()
-                    cursor.execute('UPDATE parking_records SET status=? WHERE id=?', (new_status, record[0]))
-                    conn.commit()
-                    st.write(f"Status updated to {new_status}")
+            # conn = initialize_db()  # Use cached database connection
+            # records = fetch_records(conn)
+            # for record in records:
+            #     st.write(f"Record ID: {record[0]}, Car Number: {record[2]}, Status: {record[4]}")
+            #     action = st.selectbox("Action", ["Issue First Warning", "Issue Second Warning", "Issue Third Warning",
+            #                                      "Revoke Parking Sticker"], key=record[0])
+            #     if st.button("Apply", key=f"apply_{record[0]}"):
+            #         new_status = action
+            #         cursor = conn.cursor()
+            #         cursor.execute('UPDATE parking_records SET status=? WHERE id=?', (new_status, record[0]))
+            #         conn.commit()
+            #         st.write(f"Status updated to {new_status}")
         else:
             st.error("Invalid credentials.")
 
