@@ -61,6 +61,13 @@ def user_dashboard():
                 st.warning(f"Detected {len(car_boxes)} cars in the parking lot.")
             else:
                 st.success("No cars detected in the parking lot.")
+
+            # Display analysis results for each car
+            for item in analysis:
+                if "Incorrectly" in item:
+                    st.error(item)
+                else:
+                    st.success(item)
         else:
             st.error("Error processing image. Please check the uploaded image.")
     
