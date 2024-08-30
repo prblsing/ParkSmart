@@ -38,9 +38,19 @@ def main():
 def user_dashboard():
     st.header("Upload or Capture Parking Image")
 
-    # Option to upload an image or capture from the camera
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
     camera_image = st.camera_input("Or capture an image using your camera")
+
+    # Check if an image is uploaded or captured
+    if uploaded_file is not None:
+        # Load image from file uploader
+        image = np.array(Image.open(uploaded_file))
+    elif camera_image is not None:
+        # Load image from camera input
+        image = np.array(Image.open(camera_image))
+    else:
+        st.info("Please upload an image or capture one using your camera.")
+        return
 
     # Use the uploaded image if available, otherwise use the captured image
     if uploaded_file is not None or camera_image is not None:
