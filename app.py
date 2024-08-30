@@ -4,7 +4,6 @@ from park_smart.config.model_config import load_yolo_model
 from park_smart.utils.parking_validations import draw_bounding_boxes, is_car_parked_correctly
 from park_smart.utils.image_processing import preprocess_image, detect_cars, detect_parking_lines
 from park_smart.utils.database import initialize_database, insert_record, fetch_records
-from park_smart.utils.number_plate_recognition import identify_car_number
 from PIL import Image
 import numpy as np
 from datetime import datetime
@@ -45,22 +44,26 @@ def user_dashboard():
         image = np.array(Image.open(uploaded_file))
     
         # Detect parking lines
-        parking_lines_img = detect_parking_lines(image.copy())
+        parking_lines_img, parking_spaces = detect_parking_lines(image.copy())
     
         # Detect cars
         car_boxes = detect_cars(image.copy())
     
-        # Draw bounding boxes
-        image_with_boxes = draw_bounding_boxes(parking_lines_img.copy(), car_boxes)
-    
-        # Display results
-        st.image(image_with_boxes, caption="Processed Image with Detected Cars", use_column_width=True)
-    
-        if car_boxes:
-            st.warning(f"Detected {len(car_boxes)} cars in the parking lot.")
+        # Ensure parking lines and car boxes are correctly processed
+        if parking_lines_img is not None and car_boxes is not None:
+            # Draw bounding boxes
+            image_with_boxes, analysis = draw_bounding_boxes(parking_lines_img.copy(), car_boxes, parking_spaces)
+        
+            # Display results
+            st.image(image_with_boxes, caption="Processed Image with Detected Cars", use_column_width=True)
+        
+            if car_boxes:
+                st.warning(f"Detected {len(car_boxes)} cars in the parking lot.")
+            else:
+                st.success("No cars detected in the parking lot.")
         else:
-            st.success("No cars detected in the parking lot.")
-
+            st.error("Error processing image. Please check the uploaded image.")
+    
 def admin_dashboard():
     st.header("Admin Dashboard")
     username = st.text_input("Username", value="admin")
