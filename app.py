@@ -8,35 +8,28 @@ from park_smart.utils.number_plate_recognition import identify_car_number
 from PIL import Image
 import numpy as np
 from datetime import datetime
-import sqlite3
-import os
+
+
+# Initialize the model
+yolo_model = load_yolo_model()
 
 # Initialize logger
 logger = get_logger(__name__, log_level='INFO')
 
-@st.cache_resource
-def initialize_yolo_model():
-    """Lazy loading of the YOLO model."""
-    return load_yolo_model()
+# Load models
+yolo_model = load_yolo_model()
 
-@st.cache_resource
-def initialize_db():
-    """Lazy loading of the database connection."""
-    return initialize_database()
+# Initialize database
+conn = initialize_database()
 
-def main():
-    st.title('ParkSmart Analytics')
-    st.sidebar.header("Navigation")
+# Streamlit app
+st.title('ParkSmart Analytics')
+st.sidebar.header("Navigation")
 
-    # User login and tabs
-    tabs = st.sidebar.radio("Select a view", ["User Dashboard", "Admin Dashboard"])
+# User login and tabs
+tabs = st.sidebar.radio("Select a view", ["User Dashboard", "Admin Dashboard"])
 
-    if tabs == "User Dashboard":
-        user_dashboard()
-    elif tabs == "Admin Dashboard":
-        admin_dashboard()
-
-def user_dashboard():
+if tabs == "User Dashboard":
     st.header("Upload Parking Image")
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
@@ -49,8 +42,6 @@ def user_dashboard():
         st.image(final_image, caption="Processed Image with Detected Cars", use_column_width=True)
         st.write(f"Detected {len(car_boxes)} cars in the parking lot.")
 
-        conn = initialize_db()  # Use cached database connection
-
         for item in analysis:
             if "Incorrectly" in item:
                 car_number = identify_car_number(final_image, car_boxes[analysis.index(item)])
@@ -60,7 +51,7 @@ def user_dashboard():
             else:
                 st.success(item)
 
-def admin_dashboard():
+elif tabs == "Admin Dashboard":
     st.header("Admin Dashboard")
     username = st.text_input("Username", value="admin")
     password = st.text_input("Password", value="admin", type="password")
@@ -68,7 +59,6 @@ def admin_dashboard():
     if st.button("Login"):
         if username == "admin" and password == "admin":
             st.success("Logged in successfully!")
-            conn = initialize_db()  # Use cached database connection
             records = fetch_records(conn)
             for record in records:
                 st.write(f"Record ID: {record[0]}, Car Number: {record[2]}, Status: {record[4]}")
@@ -82,6 +72,3 @@ def admin_dashboard():
                     st.write(f"Status updated to {new_status}")
         else:
             st.error("Invalid credentials.")
-
-if __name__ == "__main__":
-    main()
