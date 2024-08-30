@@ -42,23 +42,19 @@ def user_dashboard():
     camera_image = st.camera_input("Or capture an image using your camera")
 
     # Check if an image is uploaded or captured
+    image = None
     if uploaded_file is not None:
-        # Load image from file uploader
-        image = np.array(Image.open(uploaded_file))
+        # Read the uploaded image using BytesIO
+        image = Image.open(uploaded_file)
     elif camera_image is not None:
-        # Load image from camera input
-        image = np.array(Image.open(camera_image))
-    else:
-        st.info("Please upload an image or capture one using your camera.")
-        return
-
+        # Read the camera image directly
+        image = Image.open(camera_image)
+        
     # Use the uploaded image if available, otherwise use the captured image
-    if uploaded_file is not None or camera_image is not None:
-        # Determine which image to use
-        image_source = uploaded_file if uploaded_file is not None else camera_image
+    if image is not None:
 
         # Load image
-        image = np.array(Image.open(uploaded_file))
+        image = np.array(image)
     
         # Detect parking lines
         parking_lines_img, parking_spaces = detect_parking_lines(image.copy())
